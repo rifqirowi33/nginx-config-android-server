@@ -1,0 +1,25 @@
+server {
+    listen 8080;
+    server_name www.repp.my.id repp.my.id;
+
+    if ($host = www.repp.my.id) {
+        return 301 http://repp.my.id$request_uri;
+    }
+
+    location / {
+        proxy_pass http://localhost:3333;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_cache_bypass $http_upgrade;
+
+        error_page 502 503 504 /maintenance.html;
+    }
+
+    location = /maintenance.html {
+        root /var/www/html;
+        internal;
+    }
+}
